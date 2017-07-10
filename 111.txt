@@ -1,0 +1,176 @@
+
+知识点
+     1.网络同步下载     
+     2.网络异步下载
+     3.json解析
+     4.SDWebImage异步图片下载
+     5.网络状态判断
+     6.ASIHttp基本使用
+
+http://api.douban.com/v2/movie/top250?apikey=02d830457f4a8f6d088890d07ddfae47
+=============================
+
+网络名词
+客户端:移动终端
+服务器:为客户端提供数据和服务 提供资源
+
+客户端向服务器请求资源的过程
+1.通过url向服务器发送资源请求 
+2.服务器收到请求后 响应并发送资源给客户端  ——> 
+3.请求:客户端向服务器索取数据的一种行为
+4.响应:服务器对客户端的请求作出响应,一般值返回数据.
+
+=============================
+
+	URL  —>  协议名://域名:端口/路径?参数1=值&参数2=值
+		// 协议名  http https
+		//  file
+		//  ftp
+网络同步下载
+
+1.NSURL
+     1)什么是URL
+          ①统一资源定位符（Uniform Resource Locator，缩写为URL）是对可以从互联网上得到的资源的位置和访问方法的一种简洁的表示，是互联网上标准资源的地址。
+               互联网上的每个文件都有一个唯一的URL，它包含的信息指出文件的位置以及浏览器应该怎么处理它。
+          ②基本URL包含模式（或称协议）、服务器名称（或IP地址）、路径和文件名，如“协议://授权/路径?查询”。
+               完整的、带有授权部分的普通统一资源标志符语法看上去如下:
+                    协议://用户名:密码@子域名.域名.顶级域名:端口号/目录/文件名.文件后缀?参数=值#标志
+
+     2)NSURL的创建
+          + (id)URLWithString:(NSString *)URLString
+     3)如何从服务器中下载一段文字
+          + (instancetype)stringWithContentsOfURL:(NSURL *)url encoding:(NSStringEncoding)enc error:(NSError **)error
+
+
+     4)获取URL中的各部分内容
+         协议:
+         用户名:
+         密码:
+         域名:
+
+     练习:从服务器中下载一段文字并且显示到UILabel上
+   
+2.NSData
+     1)回忆什么是NSData(文件读写)
+     2)从服务器中下载数据
+          + (id)dataWithContentsOfURL:(NSURL *)url
+     练习:从服务器中下载图片并且显示到UIImageView中
+ 
+3.NSURLRequest
+     1)什么叫请求
+     2)如何创建请求
+          + (id)requestWithURL:(NSURL *)URL
+         
+4.NSURLConnection
+     思考:如何将请求发送个服务器
+     1)向服务器发送请求
+          + (NSData *)uest:sendSynchronousReq(NSURLRequest *)request returningResponse:(NSURLResponse **)response error:(NSError **)error;
+    
+5.NSURLResponse
+     1)什么是响应，服务器什么时候会响应用户的请求
+     2)NSURLResponse和NSHTTPURLRespnse区别
+
+6.NSHTTPURLResponse
+
+7.NSURL中汉字的处理
+     思考:当使用百度等某些搜索中文内容时地址栏的变化
+     1)将字符串中的汉字进行处理
+          - (NSString *)stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc
+
+//写入到系统相册
+UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+
+
+=============================
+
+网络异步下载
+思考：为什么需要异步下载
+1.NSMutableData
+2.异步请求数据流程
+     didReceiveResponse
+     didReceiveData
+     didFinshLoading
+
+=============================
+json解析
+什么是JSON
+1.NSJSONSerialization
+     1)获取JSON数据
+          + (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)opt error:(NSError **)error;
+     2)将foundation对象转换为JSON
+
+枚举值 作用 是否默认 NSJSONReadingMutableContainers
+返回可变容器，NSMutableDictionary或NSMutableArray
+
+NSJSONReadingMutableLeaves
+返回的JSON对象中字符串的值为NSMutableString
+
+NSJSONReadingAllowFragments
+允许JSON字符串最外层既不是NSArray也不是NSDictionary
+
+     [[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0
+
+2.SBJSON
+     1)将SBJSON包的内容导入项目
+     2)包含对应的头文件
+     3)如何解析JSON
+         
+=============================
+
+SDWebImage异步图片下载
+思考：在使用tableview显示数据时候发生了什么问题
+1.异步下载并且缓存图片
+     1)下载并且缓存图片到沙盒中
+          - (void)setImageWithURL:(NSURL *)url;
+     2)下载并且缓存图片到沙盒中，在图片未下载完之前显示placeholder图片内容
+          - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
+
+
+=============================
+
+AFNetworking基本使用
+     http://blog.csdn.net/u014202635/article/details/38492111 基本使用
+     http://blog.sina.com.cn/s/blog_4cd8dd130101qjf1.html  文件上传
+
+=============================
+
+
+网络状态判断
+思考:如何限制用户只在wifi下下载数据
+1.网络类型
+     2G,3G,4G,WIFI ...
+2.使用AFNetworkReachability
+   /**
+     AFNetworkReachabilityStatusUnknown          = -1,  // 未知
+     AFNetworkReachabilityStatusNotReachable     = 0,   // 无连接
+     AFNetworkReachabilityStatusReachableViaWWAN = 1,   // 3G 花钱
+     AFNetworkReachabilityStatusReachableViaWiFi = 2,   // 局域网络,不花钱
+     */
+    // 如果要检测网络状态的变化,必须用检测管理器的单例的startMonitoring
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+
+    // 检测网络连接的单例,网络变化时的回调方法
+    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+        NSLog(@"%@", AFStringFromNetworkReachabilityStatus(status));
+    }];
+
+
+=============================
+因特网”
+http://baike.baidu.com/view/6825.htm?from_id=114119&type=syn&fromtitle=%E5%9B%A0%E7%89%B9%E7%BD%91&fr=aladdin
+
+http”
+http://baike.baidu.com/view/1628025.htm?from_id=243074&type=syn&fromtitle=http&fr=aladdin
+
+域名”
+http://baike.baidu.com/view/43.htm?fr=aladdin
+
+URL”
+http://baike.baidu.com/view/245485.htm?from_id=110640&type=syn&fromtitle=url&fr=aladdin
+
+http状态码”
+http://baike.baidu.com/view/1790469.htm?fr=aladdin
+
+
+
+
